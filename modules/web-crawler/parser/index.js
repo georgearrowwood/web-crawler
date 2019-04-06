@@ -1,5 +1,10 @@
 const Cheerio = require('./cheerio');
 
 module.exports = (parserType) => {
-  return new Cheerio();
+  switch (parserType) {
+    case 'cheerio':
+      return new Cheerio();
+    default:
+      throw Error('Invalid crawler parser type');  
+  }
 }  

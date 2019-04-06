@@ -1,13 +1,11 @@
-// web reader. html parser and exporter are done with factory pattern, 
-// so potentially could be easily replaced with any other, decoupled
-const readerFactory = require('./reader');
-const parserFactory = require('./parser');
-const exportFactory = require('./export');
 
 class WebCrawler {
   constructor(options = {}){
-    this.reader = readerFactory(options.reader, options.host);
-    this.parser = parserFactory(options.parser);
+    if (!options.reader) throw Error('reader parameter not passed to web crawler constructor');
+    if (!options.parser) throw Error('parser parameter not passed to web crawler constructor');
+
+    this.reader = options.reader;
+    this.parser = options.parser;
 
     // how many pages are being read at one time
     this.jobsInBatch = options.jobsInBatch || 15;
@@ -30,6 +28,7 @@ class WebCrawler {
 
   // main function does initial scan
   async parse(uri){
+    if (!uri) throw Error('no uri given to parse');
     this.links[uri] = false;
     await this.parsePage(uri);
     // scans untill there are items in the queue or exceeds total limit
@@ -111,8 +110,8 @@ class WebCrawler {
   }
 
   // exports data to specifed format
-  async export(exportType) {
-    const exporter = exportFactory(exportType);
+  async export(exporter) {
+    if (!exporter) throw Error('exporter parameter not passed to web crawler export');
     await exporter.run({
       links: this.links,
       images: this.images,
